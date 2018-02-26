@@ -5,6 +5,9 @@
 /** Pins for the auto hover mode. (GEAR Toggle) */
 int autoHoverSensorPin = 10;
 
+/** Pins for the LEDs */
+int redLightPin = 7;
+
 /** Pins for capsule ejection. (FLAPS Toggle) */
 int capsuleSensorPin = 8;
 int capsuleServoPin = 9;
@@ -26,6 +29,7 @@ void setup() {
   pinMode(parachuteSensorPin, INPUT);
   pinMode(capsuleSensorPin, INPUT);
   pinMode(autoHoverSensorPin, INPUT);
+  pinMode(redLightPin, OUTPUT);
 
   // Attach the servo to the parachute servo pin.
   paraEjectServo.attach(parachuteServoPin);
@@ -63,9 +67,11 @@ void loop() {
 
   if (autoHoverToggle && !autoHover) {
     autoHover = true;
+    digitalWrite(redLightPin, HIGH);
     Serial.print("Auto Hover enabled\n");
   } else if (!autoHoverToggle && autoHover) {
     autoHover = false;
+    digitalWrite(redLightPin, LOW);
     Serial.print("Auto Hover disabled\n");
   }
 }
