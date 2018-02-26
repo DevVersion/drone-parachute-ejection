@@ -21,18 +21,18 @@ void loop() {
   if (checkParachuteEject()) {
     Serial.print("Eject!");
 
-    // For testing, set the servo to 180deg.
-    paraEjectServo.write(180);
+    paraEjectServo.write(90);
   } else {
     Serial.print("NO Eject!");
 
-    // Default to 90deg.
-    paraEjectServo.write(90);
+    paraEjectServo.write(0);
   }
   Serial.print("\n");
 }
 
 boolean checkParachuteEject() {
-  return pulseIn(paraSensorPin, HIGH) <= 1700;
+  int pulse = pulseIn(paraSensorPin, HIGH);
+  
+  return pulse <= 1700 && pulse != 0;
 }
 
