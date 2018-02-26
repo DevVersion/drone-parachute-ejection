@@ -1,2 +1,7 @@
-# drone-parachute-ejection
-Arduino Program to eject a parachute using a remote controller. For now one, the aim is to use the <key>GEAR</key> button for the ejection.
+# stratoflyer-firmware
+
+Arduino Firmware for the `stratoflyer` project. The firmware is responsible for:
+
+* Ejecting the parachute
+* Disconnecting the capsule from the ballon
+* Controlling the air-volume inside of the ballon. 
