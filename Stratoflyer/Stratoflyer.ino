@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <stdlib.h>
 
 #define AH_NEUTRAL 0
 #define AH_ENABLED 1
@@ -6,65 +7,70 @@
 
 // Model B450
 
-/** Pins for parachute ejection. */
-int paraSensorPin = 10;
-int paraServoPin = 11;
+/** Pins for the auto hover mode. (GEAR Toggle) */
+int autoHoverSensorPin = 10;
 
-/** Pins for capsule ejection. */
+/** Pins for capsule ejection. (FLAPS Toggle) */
 int capsuleSensorPin = 8;
 int capsuleServoPin = 9;
 
-/** Pins for enabling the auto-hover */
-int autoHoverSensorPin = 12;
+/** Pins for enabling the parachute ejection (Throttle Cut Button) */
+int parachuteSensorPin = 12;
+int parachuteServoPin = 11;
 
 /** Servos that either eject the capsule or the parachute. */
 Servo paraEjectServo, capsuleEjectServo;
 
-bool autoHover = false;
+bool autoHover, parachuteEjected, capsuleDisconnected = false;
+
+/** Store initial capsule pulse length. This is necessary to allow switching the toggle into any direction. */
+int initialDisconnectCapsuleVal;
 
 void setup() {
   // Initialize the PWN input sensors.
-  pinMode(paraSensorPin, INPUT);
+  pinMode(parachuteSensorPin, INPUT);
   pinMode(capsuleSensorPin, INPUT);
   pinMode(autoHoverSensorPin, INPUT);
 
   // Attach the servo to the parachute servo pin.
-  paraEjectServo.attach(paraServoPin);
+  paraEjectServo.attach(parachuteServoPin);
   capsuleEjectServo.attach(capsuleServoPin);
 
   // Enable logging at the specified serial port.
   Serial.begin(9600);
+
+  initialDisconnectCapsuleVal = pulseIn(capsuleSensorPin, HIGH);  
 }
 
 void loop() {
+
+  bool ejectParachute = checkParachuteEject();
   
-  if (checkParachuteEject()) {
-    Serial.print("Eject Parachute\n");
+  if (ejectParachute && !parachuteEjected) {
+    parachuteEjected = true;
+    Serial.print("Ejected Parachute!\n");
     paraEjectServo.write(90);
   } else {
     paraEjectServo.write(0);
   }
 
-  if (checkCapsuleDisconnect()) {
-    Serial.print("Disconnect Capsule\n");
+  // Handle capsule disconnect (One Time Toggle)
+  if (checkCapsuleDisconnect() && !capsuleDisconnected) {
+    capsuleDisconnected = true;
+    Serial.print("Disconnected Capsule!\n");
+  } else {
+    // TODO: Reset servo..
   }
 
-  determineAutoHoverState();
-}
+  // Handle Auto Hover Toggle button.
+  bool autoHoverToggle = checkAutoHoverToggle();
 
-/**
- * Logic & behavior
- */
-
-void determineAutoHoverState() {
-  int autoHoverState = getAutoHoverState();
-
-  if (autoHoverState == AH_ENABLED  && !autoHover) {
+  if (autoHoverToggle && !autoHover) {
     autoHover = true;
-    Serial.print("Auto Hover enabled!\n");
-  } else if (autoHoverState == AH_DISABLED && autoHover) {
+    Serial.print("Auto Hover enabled\n");
+  } else if (!autoHoverToggle && autoHover) {
     autoHover = false;
-    Serial.print("Auto Hover disabled!\n");
+    Serial.print("Auto Hover disabled\n");
   }
 }
 
@@ -73,22 +79,15 @@ void determineAutoHoverState() {
  */
 
 bool checkCapsuleDisconnect() {
-  return pulseIn(capsuleSensorPin, HIGH) > 1100;
+  int pulseDiff = abs(pulseIn(capsuleSensorPin, HIGH) - initialDisconnectCapsuleVal);
+
+  return pulseDiff > 150;
+}
+
+bool checkAutoHoverToggle() {
+  return pulseIn(autoHoverSensorPin, HIGH) > 1700;
 }
 
 bool checkParachuteEject() {
-  return pulseIn(paraSensorPin, HIGH) > 1700;
+  return pulseIn(parachuteSensorPin, HIGH) < 1000;
 }
-
-int getAutoHoverState() {
-  int pulse = pulseIn(autoHoverSensorPin, HIGH) - 1500;
-
-  if (pulse > 50) {
-    return AH_ENABLED;
-  } else if (pulse < -50) {
-    return AH_DISABLED;
-  }
-
-  return AH_NEUTRAL;
-}
-
