@@ -46,7 +46,7 @@ void loop() {
     parachuteEjected = true;
     Serial.print("Ejected Parachute!\n");
     paraEjectServo.write(90);
-  } else {
+  } else if (!parachuteEjected) {
     paraEjectServo.write(0);
   }
 
@@ -54,8 +54,9 @@ void loop() {
   if (checkCapsuleDisconnect() && !capsuleDisconnected) {
     capsuleDisconnected = true;
     Serial.print("Disconnected Capsule!\n");
-  } else {
-    // TODO: Reset servo..
+    capsuleEjectServo.write(90);
+  } else if (!capsuleDisconnected) {
+    capsuleEjectServo.write(0);
   }
 
   // Handle Auto Hover Toggle button.
