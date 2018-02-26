@@ -1,5 +1,4 @@
 #include <Servo.h>
-#include <stdlib.h>
 
 // Model B450
 
@@ -76,9 +75,9 @@ void loop() {
  */
 
 bool checkCapsuleDisconnect() {
-  int pulseDiff = abs(pulseIn(capsuleSensorPin, HIGH) - initialDisconnectCapsuleVal);
+  int pulseDiff = pulseIn(capsuleSensorPin, HIGH) - initialDisconnectCapsuleVal;
 
-  return pulseDiff > 150;
+  return pulseDiff > 150 || pulseDiff < -150;
 }
 
 bool checkAutoHoverToggle() {
