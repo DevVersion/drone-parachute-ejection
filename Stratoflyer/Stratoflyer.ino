@@ -1,4 +1,4 @@
-#include <Servo.h> 
+#include <Servo.h>
 
 // Model B450
 
@@ -23,32 +23,33 @@ void setup() {
   capsuleEjectServo.attach(capsuleServoPin);
 
   // Enable logging at the specified serial port.
-  Serial.begin(9600);    
+  Serial.begin(9600);
+
+  
 }
 
 void loop() {
   
   if (checkParachuteEject()) {
-    Serial.print("Eject Parachute!\n");
+    Serial.print("Eject Parachute\n");
     paraEjectServo.write(90);
   } else {
     paraEjectServo.write(0);
   }
 
-  if (checkCapsuleEject()) {
-    Serial.print("Eject Capsule\n");
-
-    // Eject Capsule Servo
-  } else {
-    
+  if (checkCapsuleDisconnect()) {
+    Serial.print("Disconnect Capsule\n");
   }
 }
 
-boolean checkCapsuleEject() {
+/**
+ * Pin check functions
+ */
+
+boolean checkCapsuleDisconnect() {
   return pulseIn(capsuleSensorPin, HIGH) > 1100;
 }
 
 boolean checkParachuteEject() {  
   return pulseIn(paraSensorPin, HIGH) > 1700;
 }
-
