@@ -1,10 +1,6 @@
 #include <Servo.h>
 #include <stdlib.h>
 
-#define AH_NEUTRAL 0
-#define AH_ENABLED 1
-#define AH_DISABLED 2
-
 // Model B450
 
 /** Pins for the auto hover mode. (GEAR Toggle) */
