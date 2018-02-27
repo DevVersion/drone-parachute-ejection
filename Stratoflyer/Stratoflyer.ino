@@ -32,13 +32,14 @@ int capsuleServoPin = 9;
 
 /** Pins for enabling the parachute ejection (Throttle Cut Button) */
 int parachuteSensorPin = 12;
-int parachuteServoPin = 11;
+int parachuteServo2Pin = 5;
+int parachuteServo1Pin = 6;
 
 /** Pins for the arming sensor pin. */
 int armingSensorPin = 13;
 
 /** Servos that either eject the capsule or the parachute. */
-Servo paraEjectServo, capsuleEjectServo;
+Servo paraEjectServo1, paraEjectServo2, capsuleEjectServo;
 
 bool autoHover = false;
 bool parachuteEjected = false;
@@ -62,7 +63,9 @@ void setup() {
   pinMode(redLightPin, OUTPUT);
 
   // Attach the servo to the parachute servo pin.
-  paraEjectServo.attach(parachuteServoPin);
+  paraEjectServo1.attach(parachuteServo1Pin);
+  paraEjectServo2.attach(parachuteServo2Pin);
+  
   capsuleEjectServo.attach(capsuleServoPin);
 
   // Enable logging at the specified serial port.

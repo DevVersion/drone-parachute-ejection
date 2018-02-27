@@ -14,15 +14,20 @@
 */
 
 void initializeParachuteEjectSwitch() {
-  paraEjectServo.write(0);
+  paraEjectServo1.write(105); // Left Servo
+  paraEjectServo2.write(150); // Right Servo
 }
 
-void handleParachuteEjectSwitch() {
+void handleParachuteEjectSwitch() { 
   bool ejectParachute = checkParachuteEject();
 
-  if (ejectParachute && !parachuteEjected) {
+  if (ejectParachute && !parachuteEjected && capsuleDisconnected) {
     parachuteEjected = true;
     Serial.print("Ejected Parachute!\n");
-    paraEjectServo.write(90);
+    paraEjectServo1.write(0);
+    paraEjectServo2.write(0);
+  } else if (ejectParachute && !capsuleDisconnected) {
+    turnOffAllLights();
+    turnOnLights(true, false, false);
   }
 }

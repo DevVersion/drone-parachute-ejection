@@ -21,13 +21,9 @@ void handleColoredLights() {
     _blink = !_blink;
 
     if (_blink) {
-       digitalWrite(redLightPin, HIGH);
-       digitalWrite(blueLightPin, LOW);
-       digitalWrite(greenLightPin, LOW);
+       turnOnLights(true, false, false);
     } else {
-       digitalWrite(redLightPin, LOW);
-       digitalWrite(blueLightPin, HIGH);
-       digitalWrite(greenLightPin, LOW);
+       turnOnLights(false, false, true);
     }
 
     // Since we just display a blinking LED, and the state of the flyer is kind of locked
@@ -38,16 +34,25 @@ void handleColoredLights() {
   }
   
   if (!armed) {
-    digitalWrite(redLightPin, HIGH);
+    turnOnLights(true, false, false);
   } else {
-    digitalWrite(redLightPin, LOW);
-    digitalWrite(blueLightPin, LOW);
-    digitalWrite(greenLightPin, HIGH);
+    turnOnLights(false, true, false);
   }
 
   if (armed && autoHover) {
-    digitalWrite(greenLightPin, LOW);
-    digitalWrite(blueLightPin, HIGH);
+    turnOnLights(false, false, true);
   }
+}
+
+void turnOffAllLights() {
+  digitalWrite(redLightPin, LOW);
+  digitalWrite(greenLightPin, LOW);
+  digitalWrite(blueLightPin, LOW);
+}
+
+void turnOnLights(bool red, bool green, bool blue) {
+  digitalWrite(redLightPin, red ? HIGH : LOW);
+  digitalWrite(greenLightPin, green ? HIGH : LOW);
+  digitalWrite(blueLightPin, blue ? HIGH : LOW);
 }
 
