@@ -16,6 +16,9 @@ int capsuleServoPin = 9;
 int parachuteSensorPin = 12;
 int parachuteServoPin = 11;
 
+/** Specific pins that always need power. */
+int alwaysPowerPin = 24;
+
 /** Servos that either eject the capsule or the parachute. */
 Servo paraEjectServo, capsuleEjectServo;
 
@@ -31,6 +34,9 @@ void setup() {
   pinMode(autoHoverSensorPin, INPUT);
   pinMode(redLightPin, OUTPUT);
 
+  // Always power pins
+  pinMode(alwaysPowerPin, OUTPUT);
+
   // Attach the servo to the parachute servo pin.
   paraEjectServo.attach(parachuteServoPin);
   capsuleEjectServo.attach(capsuleServoPin);
@@ -38,11 +44,13 @@ void setup() {
   // Enable logging at the specified serial port.
   Serial.begin(9600);
 
-  initialDisconnectCapsuleVal = pulseIn(capsuleSensorPin, HIGH);  
+  initialDisconnectCapsuleVal = pulseIn(capsuleSensorPin, HIGH);
+
+  // Always power pins.
+  digitalWrite(alwaysPowerPin, HIGH);
 }
 
 void loop() {
-
   bool ejectParachute = checkParachuteEject();
   
   if (ejectParachute && !parachuteEjected) {
