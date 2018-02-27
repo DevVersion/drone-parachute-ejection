@@ -22,12 +22,8 @@ void handleArmingSwitch() {
     _startArmingMs = 0;
     return;
   }
-
-  if (capsuleServoTestMode) {
-    
-  }
-
-  long curMillis = millis();
+  
+  unsigned long curMillis = millis();
 
   if (!_startArmingMs) {
     _startArmingMs = curMillis;
