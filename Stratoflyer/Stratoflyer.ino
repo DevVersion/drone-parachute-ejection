@@ -1,12 +1,30 @@
+
+/* Copyright 2018 Stratoflyer Industries.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 #include <Servo.h>
 
-// Model B450
+// Model B450. Arduino Mega
 
 /** Pins for the auto hover mode. (GEAR Toggle) */
 int autoHoverSensorPin = 10;
 
 /** Pins for the LEDs */
-int redLightPin = 7;
+int blueLightPin = 44;
+int greenLightPin = 46;
+int redLightPin = 48;
 
 /** Pins for capsule ejection. (FLAPS Toggle) */
 int capsuleSensorPin = 8;
@@ -16,26 +34,32 @@ int capsuleServoPin = 9;
 int parachuteSensorPin = 12;
 int parachuteServoPin = 11;
 
-/** Specific pins that always need power. */
-int alwaysPowerPin = 24;
+/** Pins for the arming sensor pin. */
+int armingSensorPin = 13;
 
 /** Servos that either eject the capsule or the parachute. */
 Servo paraEjectServo, capsuleEjectServo;
 
-bool autoHover, parachuteEjected, capsuleDisconnected = false;
+bool autoHover = false;
+bool parachuteEjected = false;
+bool capsuleDisconnected = false;
+bool capsuleServoTestMode = false;
+bool armed = false;
 
 /** Store initial capsule pulse length. This is necessary to allow switching the toggle into any direction. */
-int initialDisconnectCapsuleVal;
+int initialDisconnectCapsuleVal ;
 
 void setup() {
   // Initialize the PWN input sensors.
   pinMode(parachuteSensorPin, INPUT);
   pinMode(capsuleSensorPin, INPUT);
   pinMode(autoHoverSensorPin, INPUT);
-  pinMode(redLightPin, OUTPUT);
+  pinMode(armingSensorPin, INPUT);
 
-  // Always power pins
-  pinMode(alwaysPowerPin, OUTPUT);
+  // Setup RGB LED light pins.
+  pinMode(blueLightPin, OUTPUT);
+  pinMode(greenLightPin, OUTPUT);
+  pinMode(redLightPin, OUTPUT);
 
   // Attach the servo to the parachute servo pin.
   paraEjectServo.attach(parachuteServoPin);
@@ -44,60 +68,21 @@ void setup() {
   // Enable logging at the specified serial port.
   Serial.begin(9600);
 
-  initialDisconnectCapsuleVal = pulseIn(capsuleSensorPin, HIGH);
+  // Logging.
+  Serial.println("Initialized Stratoflyer v.0.1");
 
-  // Always power pins.
-  digitalWrite(alwaysPowerPin, HIGH);
+  initializeCapsuleDisconnect();
+  initializeParachuteEjectSwitch();
 }
 
 void loop() {
-  bool ejectParachute = checkParachuteEject();
+  // Determine initial capsule value if RC controller is enabled afterwards.
+  determineInitialCapsuleValue();
   
-  if (ejectParachute && !parachuteEjected) {
-    parachuteEjected = true;
-    Serial.print("Ejected Parachute!\n");
-    paraEjectServo.write(90);
-  } else if (!parachuteEjected) {
-    paraEjectServo.write(0);
-  }
+  // Handle RC buttons.
+  handleRemoteController();
 
-  // Handle capsule disconnect (One Time Toggle)
-  if (checkCapsuleDisconnect() && !capsuleDisconnected) {
-    capsuleDisconnected = true;
-    Serial.print("Disconnected Capsule!\n");
-    capsuleEjectServo.write(90);
-  } else if (!capsuleDisconnected) {
-    capsuleEjectServo.write(0);
-  }
-
-  // Handle Auto Hover Toggle button.
-  bool autoHoverToggle = checkAutoHoverToggle();
-
-  if (autoHoverToggle && !autoHover) {
-    autoHover = true;
-    digitalWrite(redLightPin, HIGH);
-    Serial.print("Auto Hover enabled\n");
-  } else if (!autoHoverToggle && autoHover) {
-    autoHover = false;
-    digitalWrite(redLightPin, LOW);
-    Serial.print("Auto Hover disabled\n");
-  }
+  // Handle colored lights.
+  handleColoredLights();
 }
 
-/**
- * Pin check functions
- */
-
-bool checkCapsuleDisconnect() {
-  int pulseDiff = pulseIn(capsuleSensorPin, HIGH) - initialDisconnectCapsuleVal;
-
-  return pulseDiff > 150 || pulseDiff < -150;
-}
-
-bool checkAutoHoverToggle() {
-  return pulseIn(autoHoverSensorPin, HIGH) > 1700;
-}
-
-bool checkParachuteEject() {
-  return pulseIn(parachuteSensorPin, HIGH) < 1000;
-}
