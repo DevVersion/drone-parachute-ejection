@@ -16,11 +16,11 @@
 bool isCapsuleSwitchToggled() {
   int pulse = pulseIn(capsuleSensorPin, HIGH);
 
-  if (!initialDisconnectCapsuleVal || !pulse) {
+  if (!initialDisconnectCapsulePulse || !pulse) {
     return false;
   }
   
-  int pulseDiff = pulse - initialDisconnectCapsuleVal;
+  int pulseDiff = pulse - initialDisconnectCapsulePulse;
 
   return pulseDiff > 150 || pulseDiff < -150;
 }

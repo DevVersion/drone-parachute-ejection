@@ -19,10 +19,22 @@ void handleAutoHoverSwitch() {
 
   if (autoHoverToggle && !autoHover) {
     autoHover = true;
+    updateValveState();
     Serial.print("Auto Hover enabled\n");
   } else if (!autoHoverToggle && autoHover) {
     autoHover = false;
+    updateValveState();
     Serial.print("Auto Hover disabled\n");
   }
+}
+
+void updateValveState() {
+  if (autoHover) {
+    digitalWrite(valvePin, HIGH);
+  } else {
+    digitalWrite(valvePin, LOW);
+  }
+
+  Serial.println(autoHover);
 }
 

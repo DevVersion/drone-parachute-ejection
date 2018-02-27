@@ -13,11 +13,14 @@
    limitations under the License.
 */
 
-void determineInitialCapsuleValue() {
-  if (!initialDisconnectCapsuleVal) {
-    initialDisconnectCapsuleVal = pulseIn(capsuleSensorPin, HIGH);
+int _cdClosedVal = 5;
+int _cdOpenedVal = 45;
 
-    if (initialDisconnectCapsuleVal > 0) {
+void determineInitialCapsuleValue() {
+  if (!initialDisconnectCapsulePulse) {
+    initialDisconnectCapsulePulse = pulseIn(capsuleSensorPin, HIGH);
+
+    if (initialDisconnectCapsulePulse > 0) {
       Serial.println("Success: Connecting established to RC controller");
     }
   }
@@ -25,12 +28,12 @@ void determineInitialCapsuleValue() {
 
 void initializeCapsuleDisconnect() {
   // Initial capsule servo degree
-  capsuleEjectServo.write(0);
+  capsuleEjectServo.write(_cdClosedVal);
 
   determineInitialCapsuleValue();
 
   // Security check. Just checking the disconnect capsule switch.
-  if (!initialDisconnectCapsuleVal) {
+  if (!initialDisconnectCapsulePulse) {
     Serial.println("Warning: Looks like the RC controller is not turned on!");
   }
 }
@@ -43,24 +46,24 @@ void handleCapsuleDisconnectSwitch() {
   
   bool switchToggled = isCapsuleSwitchToggled();
 
+  // If armed, and the switch as been turned on, and the capsule hasn't been connected yet.
+  // This is being called if the switch has been toggled --> capsule will be disconnected.
   if (armed && switchToggled && !capsuleDisconnected) {
     capsuleDisconnected = true;
-    capsuleEjectServo.write(45);
+    capsuleEjectServo.write(_cdOpenedVal);
     Serial.print("Disconnected Capsule!\n");
   }
 
-  if (armed && !switchToggled && !capsuleDisconnected) {
-    capsuleEjectServo.write(0);
-  }
-
+  // If not armed, and the switch is turned on, and test mode was previously disabled.
+  // This allows the engineers to properly connect the ballon.
   if (!armed && switchToggled && !capsuleServoTestMode) {
     capsuleServoTestMode = true;
-    capsuleEjectServo.write(45);
+    capsuleEjectServo.write(_cdOpenedVal);
   }
 
-
+  // If not armed, and the switch is turned back from the test mode.
   if (!armed && !switchToggled && capsuleServoTestMode) {
     capsuleServoTestMode = false;
-    capsuleEjectServo.write(0);
+    capsuleEjectServo.write(_cdClosedVal);
   }
 }

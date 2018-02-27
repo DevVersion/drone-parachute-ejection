@@ -38,6 +38,9 @@ int parachuteServo1Pin = 6;
 /** Pins for the arming sensor pin. */
 int armingSensorPin = 13;
 
+/** Valve Pin */
+int valvePin = 7;
+
 /** Servos that either eject the capsule or the parachute. */
 Servo paraEjectServo1, paraEjectServo2, capsuleEjectServo;
 
@@ -48,7 +51,7 @@ bool capsuleServoTestMode = false;
 bool armed = false;
 
 /** Store initial capsule pulse length. This is necessary to allow switching the toggle into any direction. */
-int initialDisconnectCapsuleVal ;
+int initialDisconnectCapsulePulse;
 
 void setup() {
   // Initialize the PWN input sensors.
@@ -56,6 +59,9 @@ void setup() {
   pinMode(capsuleSensorPin, INPUT);
   pinMode(autoHoverSensorPin, INPUT);
   pinMode(armingSensorPin, INPUT);
+
+  // Init Valve pin.
+  pinMode(valvePin, OUTPUT);
 
   // Setup RGB LED light pins.
   pinMode(blueLightPin, OUTPUT);
@@ -72,7 +78,7 @@ void setup() {
   Serial.begin(9600);
 
   // Logging.
-  Serial.println("Initialized Stratoflyer v.0.1");
+  Serial.println("Initialized Stratoflyer v0.1");
 
   initializeCapsuleDisconnect();
   initializeParachuteEjectSwitch();
