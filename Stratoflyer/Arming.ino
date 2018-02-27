@@ -34,6 +34,12 @@ void handleArmingSwitch() {
   } else if (curMillis > _startArmingMs + 2000) {
     if (capsuleServoTestMode) {
       Serial.println("Arming failed. Capsule disconnection switch is enabled");
+
+      // Small blink to indicate that something didn't work.
+      turnOffAllLights();
+      turnOnLights(true, false, true);
+      delay(150);
+      
     } else {
       armed = true;
       Serial.println("Successfully armed now!");
