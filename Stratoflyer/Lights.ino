@@ -13,7 +13,30 @@
    limitations under the License.
 */
 
+bool _blink = false;
+
 void handleColoredLights() {
+
+  if (armed && capsuleDisconnected && parachuteEjected) {
+    _blink = !_blink;
+
+    if (_blink) {
+       digitalWrite(redLightPin, HIGH);
+       digitalWrite(blueLightPin, LOW);
+       digitalWrite(greenLightPin, LOW);
+    } else {
+       digitalWrite(redLightPin, LOW);
+       digitalWrite(blueLightPin, HIGH);
+       digitalWrite(greenLightPin, LOW);
+    }
+
+    // Since we just display a blinking LED, and the state of the flyer is kind of locked
+    // right now, we can have a delay of around 150ms for a proper blinking.
+    delay(150);
+
+    return;
+  }
+  
   if (!armed) {
     digitalWrite(redLightPin, HIGH);
   } else {
@@ -22,7 +45,7 @@ void handleColoredLights() {
     digitalWrite(greenLightPin, HIGH);
   }
 
-  if (autoHover && armed) {
+  if (armed && autoHover) {
     digitalWrite(greenLightPin, LOW);
     digitalWrite(blueLightPin, HIGH);
   }
