@@ -14,6 +14,11 @@
 */
 
 void handleAutoHoverSwitch() {
+  // Ignore auto hover switch, if the capsule is disconnected.
+  if (capsuleDisconnected) {
+    return;
+  }
+  
   // Handle Auto Hover Toggle button.
   bool autoHoverToggle = checkAutoHoverToggle();
 
