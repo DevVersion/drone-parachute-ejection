@@ -13,8 +13,8 @@
    limitations under the License.
 */
 
-int _cdClosedVal = 5;
-int _cdOpenedVal = 45;
+const int capsuleDisconnectServoClosed = 5;
+const int capsuleDisconnectServoOpened = 45;
 
 void determineInitialCapsuleValue() {
   if (!initialDisconnectCapsulePulse) {
@@ -28,7 +28,7 @@ void determineInitialCapsuleValue() {
 
 void initializeCapsuleDisconnect() {
   // Initial capsule servo degree
-  capsuleEjectServo.write(_cdClosedVal);
+  capsuleEjectServo.write(capsuleDisconnectServoClosed);
 
   determineInitialCapsuleValue();
 
@@ -50,20 +50,27 @@ void handleCapsuleDisconnectSwitch() {
   // This is being called if the switch has been toggled --> capsule will be disconnected.
   if (armed && switchToggled && !capsuleDisconnected) {
     capsuleDisconnected = true;
-    capsuleEjectServo.write(_cdOpenedVal);
-    Serial.print("Disconnected Capsule!\n");
+    capsuleEjectServo.write(capsuleDisconnectServoOpened);
+    
+    Serial.println("Disconnected Capsule!");
+
+    // For now, since we have around 4,5 seconds, we want to immediately eject the parachutes
+    // after 650 milliseconds.
+    delay(650);
+    
+    ejectParachutes();
   }
 
   // If not armed, and the switch is turned on, and test mode was previously disabled.
   // This allows the engineers to properly connect the ballon.
   if (!armed && switchToggled && !capsuleServoTestMode) {
     capsuleServoTestMode = true;
-    capsuleEjectServo.write(_cdOpenedVal);
+    capsuleEjectServo.write(capsuleDisconnectServoOpened);
   }
 
   // If not armed, and the switch is turned back from the test mode.
   if (!armed && !switchToggled && capsuleServoTestMode) {
     capsuleServoTestMode = false;
-    capsuleEjectServo.write(_cdClosedVal);
+    capsuleEjectServo.write(capsuleDisconnectServoClosed);
   }
 }

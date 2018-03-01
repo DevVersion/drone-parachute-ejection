@@ -18,14 +18,18 @@ void initializeParachuteEjectSwitch() {
   paraEjectServo2.write(150); // Right Servo
 }
 
+void ejectParachutes() {
+  parachuteEjected = true;
+  paraEjectServo1.write(0);
+  paraEjectServo2.write(0);
+  Serial.println("Ejected Parachute!");
+}
+
 void handleParachuteEjectSwitch() { 
   bool ejectParachute = checkParachuteEject();
 
   if (ejectParachute && !parachuteEjected && capsuleDisconnected) {
-    parachuteEjected = true;
-    Serial.print("Ejected Parachute!\n");
-    paraEjectServo1.write(0);
-    paraEjectServo2.write(0);
+    ejectParachutes();
   } else if (ejectParachute && !capsuleDisconnected) {
     turnOffAllLights();
     turnOnLights(true, false, false);
